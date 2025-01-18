@@ -1,8 +1,29 @@
 [
   {
-    "id": 1,
-    "description": "Café",
-    "amount": "3.5",
+    "id": 2,
+    "description": "Refresco",
+    "amount": "7.5",
+    "date": "2025-01-18",
+    "category": "Otro"
+  },
+  {
+    "id": 3,
+    "description": "Agua",
+    "amount": "1.5",
+    "date": "2025-01-18",
+    "category": "Otro"
+  },
+  {
+    "id": 4,
+    "description": "Luz",
+    "amount": "5.5",
+    "date": "2025-01-18",
+    "category": "Otro"
+  },
+  {
+    "id": 5,
+    "description": "Internet",
+    "amount": "8.5",
     "date": "2025-01-18",
     "category": "Otro"
   }

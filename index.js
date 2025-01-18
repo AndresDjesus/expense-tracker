@@ -47,6 +47,36 @@ function listExpenses() {
     }
   }
 
+  // Función para actualizar un gasto
+function updateExpense(id, newDescription, newAmount, newCategory) {
+    const expenses = readExpenses();
+    const expenseIndex = expenses.findIndex(expense => expense.id === id);
+  
+    if (expenseIndex !== -1) {
+      expenses[expenseIndex].description = newDescription || expenses[expenseIndex].description;
+      expenses[expenseIndex].amount = newAmount || expenses[expenseIndex].amount;
+      expenses[expenseIndex].category = newCategory || expenses[expenseIndex].category;
+      saveExpenses(expenses);
+      console.log(chalk.green('Gasto actualizado exitosamente'));
+    } else {
+      console.log(chalk.red('Gasto no encontrado.'));
+    }
+  }
+
+//Función para eliminar un gasto
+function deleteExpense(id) {
+    const expenses = readExpenses();
+    const expenseIndex = expenses.findIndex(expense => expense.id === id);
+  
+    if (expenseIndex !== -1) {
+      expenses.splice(expenseIndex, 1);
+      saveExpenses(expenses);
+      console.log(chalk.green('Gasto eliminado exitosamente'));
+    } else {
+      console.log(chalk.red('Gasto no encontrado.'));
+    }
+  }
+
 // Configurar el comando 'add'
 program
   .command('add <description> <amount>')
@@ -63,6 +93,22 @@ program
     const expenses = readExpenses();
     console.log(chalk.green('Listado de gastos:'));
     console.table(expenses);
+  });
+
+// Configurar el comando 'update'
+program
+  .command('update <id> <description> <amount> <category>')
+  .description('Actualizar un gasto')
+  .action((id, description, amount, category) => {
+    updateExpense(parseInt(id), description, parseFloat(amount), category);
+  });
+
+// Configurar el comando 'delete'
+program
+  .command('delete <id>')
+  .description('Eliminar un gasto')
+  .action((id) => {
+    deleteExpense(parseInt(id));
   });
 
 // Parsear los argumentos de la línea de comandos
