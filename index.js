@@ -116,6 +116,61 @@ function summaryExpenses() {
   }
 }
 
+// Function to set a budget
+function setBudget(amount) {
+    try {
+      const data = fs.readFileSync('data/budget.json');
+      const currentBudget = JSON.parse(data);
+      currentBudget.amount = amount;
+      fs.writeFileSync('data/budget.json', JSON.stringify(currentBudget, null, 2));
+      console.log(chalk.green('Presupuesto establecido exitosamente'));
+    } catch (error) {
+      // If the budget file doesn't exist, create it with the provided amount
+      if (error.code === 'ENOENT') {
+        fs.writeFileSync('data/budget.json', JSON.stringify({ amount }, null, 2));
+        console.log(chalk.green('Presupuesto establecido exitosamente'));
+      } else {
+        console.error(chalk.red('Error al establecer el presupuesto'));
+      }
+    }
+  }
+  
+  // Function to get the current budget
+  function getBudget() {
+    try {
+      const data = fs.readFileSync('data/budget.json');
+      const budget = JSON.parse(data);
+      return budget.amount;
+    } catch (error) {
+      if (error.code === 'ENOENT') {
+        console.warn(chalk.yellow('No se ha establecido un presupuesto aún.'));
+        return 0;
+      } else {
+        console.error(chalk.red('Error al obtener el presupuesto'));
+        return 0;
+      }
+    }
+  }
+  
+// Función para comparar gastos vs. presupuesto
+function compareExpensesToBudget() {
+    const expenses = readExpenses();
+    const totalExpenses = expenses.reduce((acc, expense) => acc + parseFloat(expense.amount), 0);
+    const currentBudget = getBudget();
+  
+    console.log(chalk.bold('Comparación de gastos vs. presupuesto:'));
+    console.log(`Presupuesto actual: $${currentBudget.toFixed(2)}`);
+    console.log(`Total de gastos: $${totalExpenses.toFixed(2)}`);
+  
+    const difference = currentBudget - totalExpenses;
+  
+    if (difference >= 0) {
+      console.log(chalk.green(`¡Estás dentro del presupuesto! Te quedan $${difference.toFixed(2)} para gastar este mes.`));
+    } else {
+      console.log(chalk.red(`Te has excedido del presupuesto por $${Math.abs(difference).toFixed(2)}. Deberías ajustar tus gastos.`));
+    }
+  }
+
 // Configurar el comando 'add'
 program
   .command('add <description> <amount>')
@@ -155,6 +210,29 @@ program
   .command('summary')
   .description('Mostrar resumen de gastos')
   .action(summaryExpenses);
+
+// Configurar el comando 'set-budget'
+program
+  .command('set-budget <amount>')
+  .description('Establecer un presupuesto')
+  .action((amount) => {
+    setBudget(parseFloat(amount));
+  });
+
+// Configurar el comando 'get-budget'
+program
+  .command('get-budget')
+  .description('Obtener el presupuesto actual')
+  .action(() => {
+    const budget = getBudget();
+    console.log(chalk.bold('Presupuesto actual:'), chalk.green(`$${budget.toFixed(2)}`));
+  });
+
+// Configurar el comando 'compare'
+program
+  .command('compare')
+  .description('Comparar gastos vs. presupuesto')
+  .action(compareExpensesToBudget);
 
 // Parsear los argumentos de la línea de comandos
 program.parse(process.argv);
