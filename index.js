@@ -77,6 +77,45 @@ function deleteExpense(id) {
     }
   }
 
+// Función para mostrar el resumen de gastos
+function summaryExpenses() {
+  const expenses = readExpenses();
+
+  // Calcular el total general
+  const total = expenses.reduce((acc, expense) => acc + parseFloat(expense.amount), 0);
+
+  // Agrupar gastos por categoría y calcular estadísticas
+  const expensesByCategory = expenses.reduce((acc, expense) => {
+    acc[expense.category] = acc[expense.category] || {
+      total: 0,
+      count: 0,
+      max: -Infinity,
+      min: Infinity
+    };
+    acc[expense.category].total += parseFloat(expense.amount); // Convertir a número antes de sumar
+    acc[expense.category].count++;
+    acc[expense.category].max = Math.max(acc[expense.category].max, parseFloat(expense.amount));
+    acc[expense.category].min = Math.min(acc[expense.category].min, parseFloat(expense.amount));
+    return acc;
+  }, {});
+
+  console.log(chalk.bold('Resumen de gastos:'));
+  console.log(`Total: $${total.toFixed(2)}`); 
+  console.log(`Número total de transacciones: ${expenses.length}`);
+
+  for (const category in expensesByCategory) {
+    const { total, count, max, min } = expensesByCategory[category];
+    console.log(`
+      ${category}:
+        - Total: $${total.toFixed(2)}
+        - Transacciones: ${count}
+        - Promedio: ${count > 0 ? `$${(total / count).toFixed(2)}` : 'N/A (No hay transacciones)'}
+        - Máximo: $${max.toFixed(2)}
+        - Mínimo: $${min.toFixed(2)}
+    `);
+  }
+}
+
 // Configurar el comando 'add'
 program
   .command('add <description> <amount>')
@@ -110,6 +149,12 @@ program
   .action((id) => {
     deleteExpense(parseInt(id));
   });
+
+// Configurar el comando 'summary'
+program
+  .command('summary')
+  .description('Mostrar resumen de gastos')
+  .action(summaryExpenses);
 
 // Parsear los argumentos de la línea de comandos
 program.parse(process.argv);
